@@ -1,0 +1,162 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Homepage
+{% endblock %}
+<!-- for the HTML we have used W3 Schools and Stackoverflow -->
+{% block main %}
+        <div id="inner1">
+            <font face="avenir" size="4">
+                a product developed for proton.ai
+            </font>
+
+            <br>
+
+            <font face="avenir" size="2" color="grey">
+                CS50 Final Project - Fall 2018
+            </font>
+        </div>
+
+        <div id="gradient" />
+
+        <br><br><br><br>
+
+        <div class="center-text">
+            Allowing real-time speech-to-text transcription and sentiment analysis of sales calls.
+        </div>
+
+        <br><br><br>
+
+        <div class="start-now">
+            <form action="/record" method="get">
+                <input type="submit" value="Quick Start" name="start record" id="frm1_submit"/>
+            </form>
+        </div>
+
+        <br><br><br>
+
+        <div class="team">
+            Scroll down to meet the team
+        </div>
+
+        <br><br><br><br><br><br>
+
+        <div class="flex-container">
+            <div>
+                <img class="prof-pic" src="{{url_for('static',filename='lukascropped.jpg')}}">
+                <br>
+                <p></p>
+                <b>Lukas Schwarzmann</b>
+                <br>
+                Harvard '20
+                <br>
+                Applied Mathematics & Economics
+            </div>
+            <div>
+                <img class="prof-pic" src="{{url_for('static',filename='tomicropped.jpg')}}">
+                <br>
+                <p></p>
+                <b>Tomi Tolerian</b>
+                <br>
+                Harvard '22
+                <br>
+                Computer Science
+            </div>
+            <div>
+                <img class="prof-pic" src="{{url_for('static',filename='milescropped.jpg')}}">
+                <br>
+                <p></p>
+                <b>Miles Neumann</b>
+                <br>
+                Harvard '20
+                <br>
+                Applied Mathematics & Economics
+            </div>
+        </div>
+
+        <br><br><br><br>
+
+        <div class="container1">
+            <img id="nywallpaper" class="hover" src="{{url_for('static',filename='nywallpaper.jpg')}}">
+            <div class="centered">
+                <div class="zero">How to use VoxAnalytics...</div>
+                <div class="first">#1 click "convert speech" to analyze live / real-time voice</div>
+                <div class="second">#2 click "convert file" to analyze audio + text file uploads</div>
+            </div>
+        </div>
+
+        <br>
+
+        <div class="footer">
+            For any questions, feel free to email info@voxanalytics.us
+        </div>
+
+        <br>
+
+{% endblock %}
+
+{% block script %}
+<!-- https://speckyboy.com/css-background-effects/ -->
+<script>
+    var colors = new Array(
+    [62,35,255],
+    [60,255,60],
+    [255,35,98],
+    [45,175,230],
+    [255,0,255],
+    [255,128,0]);
+
+    var step = 0;
+    //color table indices for:
+    // current color left
+    // next color left
+    // current color right
+    // next color right
+    var colorIndices = [0,1,2,3];
+
+    //transition speed
+    var gradientSpeed = 0.002;
+
+    function updateGradient()
+    {
+
+        if ( $===undefined ) return;
+
+        var c0_0 = colors[colorIndices[0]];
+        var c0_1 = colors[colorIndices[1]];
+        var c1_0 = colors[colorIndices[2]];
+        var c1_1 = colors[colorIndices[3]];
+
+        var istep = 1 - step;
+        var r1 = Math.round(istep * c0_0[0] + step * c0_1[0]);
+        var g1 = Math.round(istep * c0_0[1] + step * c0_1[1]);
+        var b1 = Math.round(istep * c0_0[2] + step * c0_1[2]);
+        var color1 = "rgb("+r1+","+g1+","+b1+")";
+
+        var r2 = Math.round(istep * c1_0[0] + step * c1_1[0]);
+        var g2 = Math.round(istep * c1_0[1] + step * c1_1[1]);
+        var b2 = Math.round(istep * c1_0[2] + step * c1_1[2]);
+        var color2 = "rgb("+r2+","+g2+","+b2+")";
+
+        $('#gradient').css({
+        background: "-webkit-gradient(linear, left top, right top, from("+color1+"), to("+color2+"))"}).css({
+        background: "-moz-linear-gradient(left, "+color1+" 0%, "+color2+" 100%)"});
+
+        step += gradientSpeed;
+        if ( step >= 1 )
+        {
+            step %= 1;
+            colorIndices[0] = colorIndices[1];
+            colorIndices[2] = colorIndices[3];
+
+            //pick two new target color indices
+            //do not pick the same as the current one
+            colorIndices[1] = ( colorIndices[1] + Math.floor( 1 + Math.random() * (colors.length - 1))) % colors.length;
+            colorIndices[3] = ( colorIndices[3] + Math.floor( 1 + Math.random() * (colors.length - 1))) % colors.length;
+        }
+    }
+
+    setInterval(updateGradient,10);
+
+</script>
+{% endblock %}

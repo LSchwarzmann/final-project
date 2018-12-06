@@ -1,0 +1,168 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Record
+{% endblock %}
+
+{% block main %}
+
+<div id="inner1">
+  <font face="avenir" size="4">
+    Choose & upload a file of type .wav or .txt that you would to analyze below.
+  </font>
+  <br>
+  <font face="avenir" size="2" color="grey">
+    CS50 Final Project - Fall 2018
+  </font>
+</div>
+
+<br>
+<br>
+<br>
+
+<form id="upload-file" method="post" enctype="multipart/form-data" name="myForm" onsubmit="return validateForm()">
+  <center>
+  <div class="custom-file" id="file_upload">
+    <input type="file" class="custom-file-input" type="file" id="file" name="file">
+    <label class="custom-file-label text-truncate" id="label" for="file">Choose file...</label>
+  </div>
+  <br>
+  <div class="row">
+    <button class="btn btn-outline-dark" id="upload-file-btn" type="button">Upload</button>
+  </div>
+</form>
+
+<div class="container"> <!--page container -->
+    <div class="text-box" contenteditable="true"></div> <!--text box which will contain spoken text -->
+</div>
+
+<div2 id="tables">
+  <table id="sentiment" class="table"></table>
+  <table id="classify" class="table"></table>
+  <table id="entities" class="table"></table>
+  <table id="syntax" class="table"></table>
+</div2>
+<br>
+{% endblock %}
+
+{% block script %}
+<script src="/static/tables.js"></script> <!-- link to index.js script -->
+<script>
+  // Creates element in which the transcribed text will be displayed
+  let paragraph = document.createElement('p');
+  let container = document.querySelector('.text-box');
+  container.appendChild(paragraph);
+
+  // https://stackoverflow.com/questions/18334717/how-to-upload-a-file-using-an-ajax-call-in-flask
+  // Uploads the fille to the server
+  $('.custom-file-input').on('change', function() {
+     let fileName = $(this).val().split('\\').pop();
+     $(this).next('.custom-file-label').addClass("selected").html(fileName);
+  });
+
+  $('#file').change(function() {
+    var i = $(this).prev('label').clone();
+    var file = $('#file')[0].files[0].name;
+    $(this).prev('label').text(file);
+  });
+
+
+  $(function() {
+      $('#upload-file-btn').click(function() {
+          // Check if file is selected
+          let x = document.forms["myForm"]["file"].value;
+          if (x == "") {
+              alert("Name must be filled out");
+              return false;
+          }
+          let extension = x.split(".");
+
+          // Check if file format is valid
+          if (extension[1] != "txt" && extension[1] != "wav") {
+              alert("File format is not valid");
+              return false;
+          }
+
+
+          // Creating POST request to server to process uploaded file
+          var form_data = new FormData($('#upload-file')[0]);
+          $.ajax({
+              type: 'POST',
+              url: '/file_trans',
+              data: form_data,
+              contentType: false,
+              cache: false,
+              processData: false,
+              dataType: 'text',
+              // Adds transcribed text to website and initiates sentiment analysis
+              complete: function(data) {
+                // Save processed text from server
+                let resp = data.responseText;
+
+                // Initiate the sentiment analysis on the processed text
+                call_server(resp);
+
+                // Update contents of paragraph to display text on screen
+                paragraph.textContent = data.responseText;
+              },
+          });
+      });
+  });
+
+  // Calls server to perform the sentiment analysis
+  function call_server(txt){
+    let xhttp = new XMLHttpRequest();
+    xhttp.open('POST', '/analyze', true);
+
+    xhttp.onload = function () {
+      let resp = xhttp.responseText;
+      let obj = JSON.parse(resp);
+      console.log(obj);
+
+      // Change color of the text based on the sentiment
+      let sent = obj["sentiment"]["score"];
+      if (sent > 0.65){
+        paragraph.style.color = "#28560a"
+      }
+      else if (sent > 0.25){
+        paragraph.style.color = "#5ae510"
+      }
+      else if (sent > -0.25){
+        paragraph.style.color = "black"
+      }
+      else if (sent > -0.65){
+        paragraph.style.color = "#f41313"
+      }
+      else{
+        paragraph.style.color = "#890202"
+      }
+
+      // Create empty line to add in later
+      let br = document.createElement("br");
+
+      // Generate sentiment table
+      create_sentiment_table(obj);
+      (document.getElementById("tables")).insertBefore(br,document.getElementById("sentiment"))
+
+      // Generate classify table if such analysis was possible
+      if (obj["classify"].length != 0) {
+        (document.getElementById("tables")).insertBefore(br,document.getElementById("classify"))
+        create_classify_table(obj);
+      }
+
+      // Generate entity table if such analysis was possible
+      if (obj["entities"].length != 0) {
+        (document.getElementById("tables")).insertBefore(br,document.getElementById("entities"))
+        create_entity_table(obj);
+      }
+
+      // Generate syntax table
+      (document.getElementById("tables")).insertBefore(br,document.getElementById("syntax"))
+      create_syntax_table(obj);
+    };
+
+
+    xhttp.send(txt);
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Record
+{% endblock %}
+
+{% block main %}
+
+  <div id="inner1">
+    <font face="avenir" size="4">
+      Press the 'listen' button and start speaking; after pausing, press button again to restart the process.
+    </font>
+    <br>
+    <font face="avenir" size="2" color="grey">
+      CS50 Final Project - Fall 2018
+    </font>
+  </div>
+
+  <div class="container"> <!--page container -->
+    <div class="text-box" contenteditable="false"></div> <!--text box which will contain spoken text -->
+      <i class="fa fa-microphone">Listen</i> <!-- microphone icon to be clicked before speaking -->
+    </div>
+  </div>
+
+  <table id="sentiment" class="table"></table>
+  <table id="classify" class="table"></table>
+  <table id="entities" class="table"></table>
+  <table id="syntax" class="table"></table>
+  <br>
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/tables.js"></script> <!-- link to tables.js script -->
+  <script src="/static/index.js"></script> <!-- link to index.js script -->
+{% endblock %}
